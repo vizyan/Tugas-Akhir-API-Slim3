@@ -29,7 +29,19 @@ return [
             'dbname' => 'tugas_akhir',
             'driver' => 'mysql',
             'charset' => 'utf8',
-            'collation' => 'utf8_unicode_ci'
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+        ],
+
+        'dbe' => [
+            'driver' => 'mysql',
+            'host' => 'localhost',
+            'database' => 'tugas_akhir',
+            'username' => 'root',
+            'password' => '',
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
         ],
     ],
 ];

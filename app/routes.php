@@ -32,49 +32,34 @@
 
         //group users
         $app->group('/users', function () use ($app) {
-            //get all users
-            $app->get('/', App\Action\UsersController::class.':getAllUsers')->setName('all users');
 
-            //get user by id
-            $app->get('/{id}', App\Action\UsersController::class.':getUserById')->setName('get user by id');
+            $app->get('/', App\Action\CobaController::class.':getAll')->setName('get all user Eloquent');
 
-            //search books by title, sinopsis, author
-            $app->get('/search/', App\Action\UsersController::class.':searchUsers')->setName('search users');
+            $app->get('/{id}', App\Action\CobaController::class.':getById')->setName('get user by id Eloquent');
 
-            //register user
-            $app->post('/', App\Action\UsersController::class.':addUser')->setName('add user');
+            $app->get('/search/', App\Action\CobaController::class.':search')->setName('search user Eloquent');
 
-            //login user
-            $app->post('/login/', App\Action\UsersController::class.':loginUser')->setName('login by email');
+            $app->post('/login/', App\Action\CobaController::class.':login')->setName('login Eloquent');
 
-            //edit book
-            $app->post('/{id}', App\Action\UsersController::class.':editUsers')->setName('edit user by id');
+            $app->post('/', App\Action\CobaController::class.':add')->setName('add user Eloquent');
 
-            //delete book
-            $app->delete('/{id}', App\Action\UsersController::class.':deleteUsers')->setName('delete user by id');
+            $app->post('/{id}', App\Action\CobaController::class.':edit')->setName('edit user by id Eloquent');
+
+            $app->delete('/{id}', App\Action\CobaController::class.':delete')->setName('delete user Eqloquent');
         });
 
         $app->group('/products', function () use ($app) {
-            //get all users
-            $app->get('/', App\Action\UsersController::class.':getAllProducts')->setName('all users');
 
-            //get user by id
-            $app->get('/{id}', App\Action\UsersController::class.':getProductsById')->setName('get user by id');
+            $app->get('/', App\Action\ProductsController::class.':getAll')->setName('get all product Eloquent');
 
-            //search books by title, sinopsis, author
-            $app->get('/search/', App\Action\BooksController::class.':searchProducts')->setName('search books');
+            $app->get('/{id}', App\Action\ProductsController::class.':getById')->setName('get product by id Eloquent');
 
-            //register user
-            $app->post('/', App\Action\UsersController::class.':addProduct')->setName('add user');
+            $app->get('/search/', App\Action\ProductsController::class.':search')->setName('search product Eloquent');
 
-            //edit book
-            $app->post('/{id}', App\Action\UsersController::class.':editProducts')->setName('edit user by id');
+            $app->post('/', App\Action\ProductsController::class.':add')->setName('add product Eloquent');
 
-            //delete book
-            $app->delete('/{id}', App\Action\UsersController::class.':deleteProducts')->setName('delete user by id');
-        });
+            $app->post('/{id}', App\Action\ProductsController::class.':edit')->setName('edit product by id Eloquent');
 
-        $app->group('/coba', function () use ($app) {
-            $app->get('/', App\Action\CobaController::class.':getAllBooks')->setName('all users');
+            $app->delete('/{id}', App\Action\ProductsController::class.':delete')->setName('delete product Eqloquent');
         });
     });

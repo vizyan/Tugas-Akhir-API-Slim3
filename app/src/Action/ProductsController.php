@@ -1,141 +1,215 @@
 <?php
+
 namespace App\Action;
 
+use Slim\Views\Twig;
+use Psr\Log\LoggerInterface;
+use Illuminate\Database\Query\Builder;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Interop\Container\ContainerInterface;
 
-final class ProductsController
+class ProductsController
 {
-    private $container;
+    private $view;
+    private $logger;
+    protected $table;
 
-
-    public function __construct(ContainerInterface $container) {
-        $this->container = $container;
-    }
-
-    public function __invoke(Request $request, Response $response, $args){
-
-    }
-
-    public function resultData($data)
+    public function resultData($data, $message)
     {
         if($data){
             $result = array(
                 "status" => true,
-                "message" => "success",
+                "message" => $message,
                 "data" => $data,
             );
         } else {
             $result = array(
                 "status" => false,
-                "message" => "failed",
-                "data" => $data,
+                "message" => $message,
+                "data" => null,
             );
         }
-
         return $result;
     }
 
-    public function getAllProducts(Request $request, Response $response, $args)
-    {
-        $sql = "SELECT * FROM books";
-        $stmt = $this->container->db->prepare($sql);
-        $stmt->execute();
-        $data = $stmt->fetchAll();
-
-        return $response->withJson($this->resultData($data));
+    public function __construct(
+        Twig $view,
+        LoggerInterface $logger,
+        Builder $table
+    ) {
+        $this->view = $view;
+        $this->logger = $logger;
+        $this->table = $table;
     }
 
-    public function getProductById(Request $request, Response $response, $args)
+    public function __invoke(Request $request, Response $response, $args){}
+
+    public function getAll(Request $request, Response $response){
+        // $data = $this->table->get();
+
+        $datab = $this->table
+                ->join('category', 'products.id_category', '=', 'category.id')
+                ->select('products.*', 'category.name as cat_name')
+                ->get();
+
+        if($datab)
+            return $response->withJson($this->resultData($datab, "Semua produk"), 200);
+        
+        return $response->withJson($this->resultData($datab, "Tidak ada produk"), 200);
+    }
+
+    public function getById(Request $request, Response $response, $args)
     {
         $id = $args["id"];
-        $sql = "SELECT * FROM books WHERE book_id=:id";
-        $stmt = $this->container->db->prepare($sql);
-        $stmt->execute([":id" => $id]);
-        $data = $stmt->fetch();
         
-        return $response->withJson($this->resultData($data));
+        $data = $this->table
+                ->join('category', 'products.id_category', '=', 'category.id')
+                ->select('products.*', 'category.name as cat_name')
+                ->where('products.id', $id)
+                ->first();
+        
+        if($data)
+            return $response->withJson($this->resultData($data, "Produk id"), 200);
+        
+        return $response->withJson($this->resultData(null, "Produk tidak ditemukan"), 200);
     }
 
-    public function searchProducts(Request $request, Response $response)
+    public function search(Request $request, Response $response)
     {
         $keyword = $request->getQueryParam("keyword");
-        $sql = "SELECT * FROM books WHERE title LIKE '%$keyword%' OR sinopsis LIKE '%$keyword%' OR author LIKE '%$keyword%'";
-        $stmt = $this->container->db->prepare($sql);
-        $stmt->execute();
-        $data = $stmt->fetchAll();
+        
+        $data = $this->table
+                ->join('category as c', 'products.id_category', '=', 'c.id')
+                ->select('products.*', 'c.name as cat_name')
+                ->where('products.name', 'like', $keyword)
+                ->get();
 
-        return $response->withJson($this->resultData($data));
+        if($data)
+            return $response->withJson($this->resultData($data, "Daftar akun"), 200);
+        
+        return $response->withJson($this->resultData($data, "Akun tidak ditemukan"), 200);
     }
 
-    public function addProduct(Request $request, Response $response){
-        $new_book = $request->getParsedBody();
-        
-        $sql = "INSERT INTO books (title, author, sinopsis) VALUE (:title, :author, :sinopsis)";
-        $stmt = $this->container->db->prepare($sql);
-    
-        $data = [
-            ":title" => $new_book["title"],
-            ":author" => $new_book["author"],
-            ":sinopsis" => $new_book["sinopsis"]
-        ];
+    // public function login(Request $request, Response $response)
+    // {
+    //     $dataIn = $request->getParsedBody();
+    //     $email = $dataIn["email"];
+    //     $password = $dataIn["password"];
 
-        if($stmt->execute($data)) {
-            return $response->withJson($this->resultData($data));
-        }
-    
-        $result = array(
-            "status" => false,
-            "message" => "error execute",
-            "data" => $data,
-        );
-        return $response->withJson($result, 500);
-    }
+    //     $data = $this->table->where('email', $email)->first();
 
-    public function editProducts(Request $request, Response $response, $args)
-    {
-        $id = $args["id"];
-        $new_book = $request->getParsedBody();
-        $sql = "UPDATE books SET title=:title, author=:author, sinopsis=:sinopsis WHERE book_id=:id";
-        $stmt = $this->container->db->prepare($sql);
+    //     if($data){
+    //         $passwordHash = $data->password;
+    //         if(password_verify($password, $passwordHash)){
+    //             return $response->withJson($this->resultData($data, "Login sukses"));
+    //         } else {
+    //             return $response->withJson($this->resultData(null, "Password salah"));
+    //         }
+    //     }
         
-        $data = [
-            ":id" => $id,
-            ":title" => $new_book["title"],
-            ":author" => $new_book["author"],
-            ":sinopsis" => $new_book["sinopsis"]
-        ];
-    
-        if($stmt->execute($data))
-            return $response->withJson($this->resultData($data));
-        
-        $result = array(
-            "status" => false,
-            "message" => "error execute",
-            "data" => $data,
-        );
-        return $response->withJson($result, 500);
-    }
+    //     return $response->withJson($this->resultData(null, "Email belum terdaftar"), 200);
+    // }
 
-    public function deleteProducts(Request $request, Response $response, $args)
-    {
-        $id = $args["id"];
-        $sql = "DELETE FROM books WHERE book_id=:id";
-        $stmt = $this->container->db->prepare($sql);
+    public function add(Request $request, Response $response){
+
+        $dataIn = $request->getParsedBody();
+        $email = $dataIn["email"];
+        $name = $dataIn["name"];
+        $password = $dataIn["password"];
+        $stellarId = $dataIn["stellarId"];
+        $secretSeed = $dataIn["secretSeed"];
+        // $token = $dataIn["token"];
+        // $address = $dataIn["address"];
+        // $phone = $dataIn["phone"];
+        $passwordEncrypt = password_hash($password, PASSWORD_DEFAULT);
+        
+        if (empty($email) || empty($name) || empty($stellarId) || empty($secretSeed) || empty($password) ) {
+            return $response->withJson($this->resultData(null, "Form kosong"));
+        
+        } else {
+            $data = $this->table->where('email', $email)->exists();
+            if($data){
+                return $response->withJson($this->resultData($data, "Email telah terdaftar"));
             
-        $data = [
-            ":id" => $id
-        ];
+            } else {
+
+                $datab = [
+                    'email' => $email, 
+                    'name' => $name,
+                    'stellarId' => $stellarId,
+                    'secretSeed' => $secretSeed,
+                    // 'token' => $token,
+                    // 'address' => $address,
+                    // 'phone' => $phone,
+                    'password' => $passwordEncrypt
+                ];
+
+                $newData = $this->table->insert($datab);
+                        
+                if($newData) {
+                    return $response->withJson($this->resultData($datab, "Registrasi sukses"));
+                }
+
+                return $response->withJson($this->resultData(null, "Eksekusi error"));
+            }
+        }
+    }
+
+    public function edit(Request $request, Response $response, $args){
+
+        $id = $args["id"];
+        $dataIn = $request->getParsedBody();
+        $email = $dataIn["email"];
+        $name = $dataIn["name"];
+        $password = $dataIn["password"];
+        $stellarId = $dataIn["stellarId"];
+        $secretSeed = $dataIn["secretSeed"];
+        // $token = $dataIn["token"];
+        // $address = $dataIn["address"];
+        // $phone = $dataIn["phone"];
+        $passwordEncrypt = password_hash($password, PASSWORD_DEFAULT);
         
-        if($stmt->execute($data))
-            return $response->withJson($this->resultData($data));
+        if (empty($email) || empty($name) || empty($stellarId) || empty($secretSeed) || empty($password) ) {
+            return $response->withJson($this->resultData(null, "Form kosong"));
         
-        $result = array(
-            "status" => false,
-            "message" => "error execute",
-            "data" => $data,
-        );
-        return $response->withJson($result, 500);
+        } else {
+            $data = $this->table->where('email', $email)->exists();
+            if($data){
+                return $response->withJson($this->resultData($data, "Email telah terdaftar"));
+            
+            } else {
+
+                $datab = [
+                    'email' => $email, 
+                    'name' => $name,
+                    'stellarId' => $stellarId,
+                    'secretSeed' => $secretSeed,
+                    // 'token' => $token,
+                    // 'address' => $address,
+                    // 'phone' => $phone,
+                    'password' => $passwordEncrypt
+                ];
+
+                $newData = $this->table->where('id', $id)->updateOrInsert($datab);
+                        
+                if($newData) {
+                    return $response->withJson($this->resultData($datab, "Update sukses"));
+                }
+
+                return $response->withJson($this->resultData($newData, "Eksekusi error"));
+            }
+        }
+    }
+
+    public function delete(Request $request, Response $response, $args)
+    {
+        $id = $args["id"];
+        
+        $data = $this->table->where('id', $id)->delete();
+        
+        if($data)
+            return $response->withJson($this->resultData($data, "Berhasil menghapus akun"));
+        
+        return $response->withJson($this->resultData(null, "Akun tidak ditemukan"));
     }
 }
