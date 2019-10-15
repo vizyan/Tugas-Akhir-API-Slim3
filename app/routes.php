@@ -62,4 +62,19 @@
 
             $app->delete('/{id}', App\Action\ProductsController::class.':delete')->setName('delete product Eqloquent');
         });
+
+        $app->group('/transactions', function () use ($app) {
+
+            $app->get('/', App\Action\TransactionsController::class.':getAll')->setName('get all transaction Eloquent');
+
+            $app->get('/{id}', App\Action\TransactionsController::class.':getById')->setName('get transaction by id Eloquent');
+
+            $app->get('/search/', App\Action\TransactionsController::class.':search')->setName('search transaction Eloquent');
+
+            $app->post('/', App\Action\TransactionsController::class.':add')->setName('add transaction Eloquent');
+
+            $app->post('/{id}', App\Action\TransactionsController::class.':edit')->setName('edit transaction by id Eloquent');
+
+            $app->delete('/{id}', App\Action\TransactionsController::class.':delete')->setName('delete transaction Eqloquent');
+        });
     });
