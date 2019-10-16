@@ -36,7 +36,7 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
-//database
+//database PDO
 $container['db'] = function ($c){
     $settings = $c->get('settings')['db'];
     $server = $settings['driver'].":host=".$settings['host'].";dbname=".$settings['dbname'];
@@ -46,7 +46,7 @@ $container['db'] = function ($c){
     return $conn;
 };
 
-//eloquent
+//database eloquent
 $container['dbe'] = function ($container) {
     $capsule = new \Illuminate\Database\Capsule\Manager;
     $capsule->addConnection($container['settings']['dbe']);
@@ -85,4 +85,11 @@ $container[App\Action\ProductsController::class] = function ($c) {
     $logger = $c->get('logger');
     $table = $c->get('dbe')->table('products');
     return new \App\Action\ProductsController($view, $logger, $table);
+};
+
+$container[App\Action\CategoryController::class] = function ($c) {
+    $view = $c->get('view');
+    $logger = $c->get('logger');
+    $table = $c->get('dbe')->table('category');
+    return new \App\Action\CategoryController($view, $logger, $table);
 };

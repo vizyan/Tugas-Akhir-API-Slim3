@@ -21,7 +21,7 @@ return [
             'path' => __DIR__ . '/../log/app.log',
         ],
 
-        // Database Settings
+        // database Settings PDO
         'db' => [
             'host' => 'localhost',
             'user' => 'root',
@@ -33,6 +33,7 @@ return [
             'prefix'    => '',
         ],
 
+        // database Settings Eloquent
         'dbe' => [
             'driver' => 'mysql',
             'host' => 'localhost',
