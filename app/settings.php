@@ -23,10 +23,10 @@ return [
 
         // database Settings PDO
         'db' => [
-            'host' => 'localhost',
-            'user' => 'root',
-            'pass' => '',
-            'dbname' => 'tugas_akhir',
+            'host' => getenv('DB_HOST'),
+            'user' => getenv('DB_USER'),
+            'pass' => getenv('DB_PASS'),
+            'dbname' => getenv('DB_NAME'),
             'driver' => 'mysql',
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
@@ -36,10 +36,10 @@ return [
         // database Settings Eloquent
         'dbe' => [
             'driver' => 'mysql',
-            'host' => 'localhost',
-            'database' => 'tugas_akhir',
-            'username' => 'root',
-            'password' => '',
+            'host' => getenv('DB_HOST'),
+            'database' => getenv('DB_NAME'),
+            'username' => getenv('DB_USER'),
+            'password' => getenv('DB_PASS'),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',

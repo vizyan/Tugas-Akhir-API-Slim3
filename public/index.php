@@ -7,6 +7,12 @@ if (PHP_SAPI === 'cli-server' && $_SERVER['SCRIPT_FILENAME'] !== __FILE__) {
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// define a root path
+define('ROOT_PATH', DIR . '/../');
+
+$dotenv = Dotenv\Dotenv::create(ROOT_PATH);
+$dotenv->load();
+
 session_start();
 
 // Instantiate the app
