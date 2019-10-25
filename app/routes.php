@@ -3,35 +3,30 @@
     use Slim\Http\Request;
     use Slim\Http\Response;
 
+    require_once __DIR__ . '/../vendor/autoload.php';
+
+    function resultData($data)
+    {
+        if($data){
+            $result = array(
+                "status" => true,
+                "message" => "success",
+                "data" => $data,
+            );
+        } else {
+            $result = array(
+                "status" => false,
+                "message" => "data kosong",
+                "data" => null,
+            );
+        }
+        return $result;
+    };
+
     $app->get('/', App\Action\HomeAction::class)
         ->setName('homepage');
 
     $app->group('/api', function () use ($app) {
-        // $app->group('/template', function () use ($app) {});
-
-        // -----------------------------------------------------------------------------
-        // Routes books
-        // -----------------------------------------------------------------------------
-
-        $app->group('/books', function () use ($app) {
-            
-            $app->get('/', App\Action\BooksController::class.':getAllBooks')->setName('all books');
-
-            
-            $app->get('/{id}', App\Action\BooksController::class.':getBookById')->setName('get book by id');
-
-            
-            $app->get('/search/', App\Action\BooksController::class.':searchBooks')->setName('search books');
-
-            
-            $app->post('/', App\Action\BooksController::class.':addBook')->setName('add book');
-        
-            
-            $app->post('/{id}', App\Action\BooksController::class.':editBooks')->setName('edit book by id');
-
-            
-            $app->delete('/{id}', App\Action\BooksController::class.':deleteBooks')->setName('delete book by id');
-        });
 
         // -----------------------------------------------------------------------------
         // Routes users
@@ -47,7 +42,7 @@
 
             $app->post('/login/', App\Action\CobaController::class.':login')->setName('login');
 
-            $app->post('/', App\Action\CobaController::class.':add')->setName('add user');
+            $app->post('/', App\Action\CobaController::class.':add')->setName('register user');
 
             $app->post('/{id}', App\Action\CobaController::class.':edit')->setName('edit user by id');
 
@@ -102,12 +97,77 @@
 
             $app->get('/{id}', App\Action\CategoryController::class.':getById')->setName('get category by id');
 
-            $app->get('/search/', App\Action\CategoryController::class.':search')->setName('search transaction');
+            $app->get('/search/', App\Action\CategoryController::class.':search')->setName('search cart');
 
-            $app->post('/', App\Action\CategoryController::class.':add')->setName('add category');
+            $app->post('/', App\Action\CategoryController::class.':add')->setName('add cart');
 
             $app->post('/{id}', App\Action\CategoryController::class.':edit')->setName('edit category by id');
 
-            $app->delete('/{id}', App\Action\CategoryController::class.':delete')->setName('delete category');
+            $app->delete('/{id}', App\Action\CategoryController::class.':delete')->setName('delete cart');
         });
+
+        // -----------------------------------------------------------------------------
+        // Routes cart
+        // -----------------------------------------------------------------------------
+
+        $app->group('/cart', function () use ($app) {
+
+            $app->get('/', App\Action\CartController::class.':getAll')->setName('get all transaction');
+
+            $app->get('/{id}', App\Action\CartController::class.':getByUser')->setName('get transaction by User');
+
+            $app->get('/search/', App\Action\CartController::class.':search')->setName('search transaction by user');
+
+            $app->post('/', App\Action\CartController::class.':add')->setName('add transaction');
+
+            $app->post('/{id}', App\Action\CartController::class.':edit')->setName('edit status cart');
+
+            $app->delete('/{id}', App\Action\CartController::class.':delete')->setName('delete transaction');
+        });
+
+        // -----------------------------------------------------------------------------
+        // Routes RajaOngkir
+        // -----------------------------------------------------------------------------
+
+        $app->group('/ongkir', function () use ($app) {
+
+            $app->get('/city/', function ($request, $response, $args) {
+                $data = RajaOngkir\RajaOngkir::Kota()->all();
+                $result = resultData($data);
+                return $this->response->withJson($result);
+            });
+
+            $app->get('/{id}', function ($request, $response, $args) {
+                $id = $args["id"];
+                $data = RajaOngkir\RajaOngkir::Kota()->find($id);
+                $result = resultData($data);
+                return $this->response->withJson($result);
+            });
+
+            $app->get('/', function ($request, $response, $args) {
+                $name = $request->getQueryParam("city");
+                $data = RajaOngkir\RajaOngkir::Kota()->search('city_name', $name)->get();
+                $result = resultData($data);
+                return $this->response->withJson($result);
+            });
+
+            $app->post('/', function ($request, $response, $args) {
+                $dataIn = $request->getParsedBody();
+                $origin = $dataIn["origin"];
+                $destination = $dataIn["destination"];
+                $weight = $dataIn["weight"];
+                $courier = $dataIn["courier"];
+
+                $data = RajaOngkir\RajaOngkir::Cost([
+                    'origin' 		=> $origin,
+                    'destination' 	=> $destination,
+                    'weight' 		=> $weight,
+                    'courier' 		=> $courier,
+                ])->get();
+                
+                return $this->response->withJson($data);
+            });
+
+        });
+
     });

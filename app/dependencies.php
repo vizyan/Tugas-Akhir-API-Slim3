@@ -93,3 +93,10 @@ $container[App\Action\CategoryController::class] = function ($c) {
     $table = $c->get('dbe')->table('category');
     return new \App\Action\CategoryController($view, $logger, $table);
 };
+
+$container[App\Action\CartController::class] = function ($c) {
+    $view = $c->get('view');
+    $logger = $c->get('logger');
+    $table = $c->get('dbe')->table('cart');
+    return new \App\Action\CartController($view, $logger, $table);
+};

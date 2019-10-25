@@ -32,11 +32,7 @@ class CobaController
         return $result;
     }
 
-    public function __construct(
-        Twig $view,
-        LoggerInterface $logger,
-        Builder $table
-    ) {
+    public function __construct(Twig $view, LoggerInterface $logger, Builder $table) {
         $this->view = $view;
         $this->logger = $logger;
         $this->table = $table;
@@ -132,7 +128,7 @@ class CobaController
                 ];
 
                 $newData = $this->table->insert($datab);
-                        
+                   
                 if($newData) {
                     return $response->withJson($this->resultData($datab, "Registrasi sukses"));
                 }
@@ -146,45 +142,37 @@ class CobaController
 
         $id = $args["id"];
         $dataIn = $request->getParsedBody();
-        $email = $dataIn["email"];
         $name = $dataIn["name"];
+        // $email = $dataIn["email"];
+        $phone = $dataIn["phone"];
+        $address = $dataIn["address"];
         $password = $dataIn["password"];
-        $stellarId = $dataIn["stellarId"];
-        $secretSeed = $dataIn["secretSeed"];
-        // $token = $dataIn["token"];
-        // $address = $dataIn["address"];
-        // $phone = $dataIn["phone"];
+        // $photo = $dataIn["photo"];
         $passwordEncrypt = password_hash($password, PASSWORD_DEFAULT);
         
-        if (empty($email) || empty($name) || empty($stellarId) || empty($secretSeed) || empty($password) ) {
+        if (empty($name) || empty($password) || empty($phone) || empty($address) ) {
             return $response->withJson($this->resultData(null, "Form kosong"));
         
         } else {
-            $data = $this->table->where('email', $email)->exists();
-            if($data){
-                return $response->withJson($this->resultData($data, "Email telah terdaftar"));
-            
-            } else {
 
-                $datab = [
-                    'email' => $email, 
-                    'name' => $name,
-                    'stellarId' => $stellarId,
-                    'secretSeed' => $secretSeed,
-                    // 'token' => $token,
-                    // 'address' => $address,
-                    // 'phone' => $phone,
-                    'password' => $passwordEncrypt
-                ];
+            $datab = [ 
+                'name' => $name,
+                // 'email' => $email,
+                // 'photo' => $photo,
+                'address' => $address,
+                'phone' => $phone,
+                'password' => $passwordEncrypt
+            ];
 
-                $newData = $this->table->where('id', $id)->updateOrInsert($datab);
+            $result = $this->table->where('id', $id)->update($datab);
                         
-                if($newData) {
-                    return $response->withJson($this->resultData($datab, "Update sukses"));
-                }
-
-                return $response->withJson($this->resultData($newData, "Eksekusi error"));
+            if($result) {
+                $data = $this->table->find($id);
+                return $response->withJson($this->resultData($data, "Update sukses"));
             }
+
+             return $response->withJson($this->resultData(null, "Eksekusi error"));
+            
         }
     }
 

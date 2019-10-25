@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c0d5d459ac6f7bc47dc6383622854b9",
+    "content-hash": "021b555a41d668adf52e5c93c9d18b0b",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -748,6 +748,44 @@
                 "simple-cache"
             ],
             "time": "2017-10-23T01:57:42+00:00"
+        },
+        {
+            "name": "rizalafani/rajaongkir",
+            "version": "v1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rizalafani/rajaongkir.git",
+                "reference": "f85778ac9061c661163558df9e180001c7da8102"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rizalafani/rajaongkir/zipball/f85778ac9061c661163558df9e180001c7da8102",
+                "reference": "f85778ac9061c661163558df9e180001c7da8102",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "RajaOngkir\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ahmad Rizal Afani",
+                    "email": "ahmadrizalafani@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Raja Ongkir API PHP",
+            "keywords": [
+                "application programming interface",
+                "rajaongkir"
+            ],
+            "time": "2015-11-07T04:05:07+00:00"
         },
         {
             "name": "slim/flash",
