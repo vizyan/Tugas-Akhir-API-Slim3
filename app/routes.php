@@ -5,18 +5,18 @@
 
     require_once __DIR__ . '/../vendor/autoload.php';
 
-    function resultData($data)
+    function resultData($data, $message)
     {
         if($data){
             $result = array(
                 "status" => true,
-                "message" => "success",
+                "message" => $message,
                 "data" => $data,
             );
         } else {
             $result = array(
                 "status" => false,
-                "message" => "data kosong",
+                "message" => $message,
                 "data" => null,
             );
         }
@@ -59,6 +59,8 @@
 
             $app->get('/{id}', App\Action\ProductsController::class.':getById')->setName('get product by id');
 
+            $app->get('/category/{id}', App\Action\ProductsController::class.':getByCat')->setName('get product by category');
+
             $app->get('/search/', App\Action\ProductsController::class.':search')->setName('search product');
 
             $app->post('/', App\Action\ProductsController::class.':add')->setName('add product');
@@ -72,19 +74,23 @@
         // Routes transactions
         // -----------------------------------------------------------------------------
 
-        $app->group('/transactions', function () use ($app) {
+        $app->group('/trans', function () use ($app) {
 
-            $app->get('/', App\Action\TransactionsController::class.':getAll')->setName('get all transaction');
+            $app->get('/', App\Action\TransactionController::class.':getAll')->setName('get all transaction');
 
-            $app->get('/{id}', App\Action\TransactionsController::class.':getById')->setName('get transaction by id');
+            $app->get('/{id}', App\Action\TransactionController::class.':getById')->setName('get transaction by id');
 
-            $app->get('/search/', App\Action\TransactionsController::class.':search')->setName('search transaction');
+            $app->get('/user/{id}', App\Action\TransactionController::class.':getByUser')->setName('get transaction by user');
 
-            $app->post('/', App\Action\TransactionsController::class.':add')->setName('add transaction');
+            $app->get('/search/', App\Action\TransactionController::class.':search')->setName('search transaction');
 
-            $app->post('/{id}', App\Action\TransactionsController::class.':edit')->setName('edit transaction by id');
+            $app->post('/', App\Action\TransactionController::class.':add')->setName('add transaction');
 
-            $app->delete('/{id}', App\Action\TransactionsController::class.':delete')->setName('delete transaction');
+            $app->get('/detail/', App\Action\DetailTransController::class.':getAll')->setName('get all detail transaction');
+
+            $app->get('/detail/{id}', App\Action\DetailTransController::class.':getByIdTrans')->setName('get detail by id transaction');
+
+            $app->post('/detail/', App\Action\DetailTransController::class.':add')->setName('add transaction');
         });
 
         // -----------------------------------------------------------------------------
@@ -112,17 +118,17 @@
 
         $app->group('/cart', function () use ($app) {
 
-            $app->get('/', App\Action\CartController::class.':getAll')->setName('get all transaction');
+            $app->get('/', App\Action\CartController::class.':getAll')->setName('get all cart');
 
-            $app->get('/{id}', App\Action\CartController::class.':getByUser')->setName('get transaction by User');
+            $app->get('/{id}', App\Action\CartController::class.':getByUser')->setName('get cart by User');
 
-            $app->get('/search/', App\Action\CartController::class.':search')->setName('search transaction by user');
+            $app->get('/search/', App\Action\CartController::class.':search')->setName('search cart by user');
 
-            $app->post('/', App\Action\CartController::class.':add')->setName('add transaction');
+            $app->post('/', App\Action\CartController::class.':add')->setName('add cart');
 
             $app->post('/{id}', App\Action\CartController::class.':edit')->setName('edit status cart');
 
-            $app->delete('/{id}', App\Action\CartController::class.':delete')->setName('delete transaction');
+            $app->delete('/{id}', App\Action\CartController::class.':delete')->setName('delete cart');
         });
 
         // -----------------------------------------------------------------------------
@@ -133,21 +139,21 @@
 
             $app->get('/city/', function ($request, $response, $args) {
                 $data = RajaOngkir\RajaOngkir::Kota()->all();
-                $result = resultData($data);
+                $result = resultData($data, "Semua kota");
                 return $this->response->withJson($result);
             });
 
             $app->get('/{id}', function ($request, $response, $args) {
                 $id = $args["id"];
                 $data = RajaOngkir\RajaOngkir::Kota()->find($id);
-                $result = resultData($data);
+                $result = resultData($data, "Koda berdasar id : $id");
                 return $this->response->withJson($result);
             });
 
             $app->get('/', function ($request, $response, $args) {
                 $name = $request->getQueryParam("city");
                 $data = RajaOngkir\RajaOngkir::Kota()->search('city_name', $name)->get();
-                $result = resultData($data);
+                $result = resultData($data, "Kota berdasarkan nama : $name");
                 return $this->response->withJson($result);
             });
 
@@ -158,14 +164,19 @@
                 $weight = $dataIn["weight"];
                 $courier = $dataIn["courier"];
 
-                $data = RajaOngkir\RajaOngkir::Cost([
-                    'origin' 		=> $origin,
-                    'destination' 	=> $destination,
-                    'weight' 		=> $weight,
-                    'courier' 		=> $courier,
-                ])->get();
-                
-                return $this->response->withJson($data);
+                if (empty($origin) || empty($destination) || empty($weight) || empty($courier) ) {
+                    return $this->$response->withJson(resultData(null, "Form kosong"));
+                } else {
+                    $data = RajaOngkir\RajaOngkir::Cost([
+                        'origin' 		=> $origin,
+                        'destination' 	=> $destination,
+                        'weight' 		=> $weight,
+                        'courier' 		=> $courier,
+                    ])->get();
+                    
+                    $result = resultData($data, "Ongkos kirim");
+                    return $this->response->withJson($result);
+                }
             });
 
         });

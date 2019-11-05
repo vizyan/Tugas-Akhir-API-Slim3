@@ -65,10 +65,6 @@ $container[App\Action\HomeAction::class] = function ($c) {
     return new App\Action\HomeAction($c->get('view'), $c->get('logger'));
 };
 
-$container[App\Action\BooksController::class] = function ($c) {
-    return new App\Action\BooksController($c);
-};
-
 $container[App\Action\UsersController::class] = function ($c) {
     return new App\Action\UsersController($c);
 };
@@ -99,4 +95,18 @@ $container[App\Action\CartController::class] = function ($c) {
     $logger = $c->get('logger');
     $table = $c->get('dbe')->table('cart');
     return new \App\Action\CartController($view, $logger, $table);
+};
+
+$container[App\Action\TransactionController::class] = function ($c) {
+    $view = $c->get('view');
+    $logger = $c->get('logger');
+    $table = $c->get('dbe')->table('transactions');
+    return new \App\Action\TransactionController($view, $logger, $table);
+};
+
+$container[App\Action\DetailTransController::class] = function ($c) {
+    $view = $c->get('view');
+    $logger = $c->get('logger');
+    $table = $c->get('dbe')->table('detail_transactions');
+    return new \App\Action\DetailTransController($view, $logger, $table);
 };

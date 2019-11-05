@@ -13,9 +13,6 @@ session_start();
 $settings = require __DIR__ . '/../app/settings.php';
 $app = new \Slim\App($settings);
 $container = $app->getContainer();
-// $capsule = new Illuminate\Database\Capsule\Manager;
-// $capsule->addConnection($container['settings']['dbe']);
-// $capsule->setAsGlobal();
 
 // Set up dependencies
 require __DIR__ . '/../app/dependencies.php';

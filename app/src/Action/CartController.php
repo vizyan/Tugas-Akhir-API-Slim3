@@ -54,7 +54,7 @@ class CartController
         if($data)
             return $response->withJson($this->resultData($data, "Semua produk"), 200);
         
-        return $response->withJson($this->resultData($data, "Tidak ada produk"), 200);
+        return $response->withJson($this->resultData($data, "Eksekusi error"), 400);
     }
 
     public function getByUser(Request $request, Response $response, $args){
@@ -64,16 +64,16 @@ class CartController
                 ->join('products', 'cart.id_product', '=', 'products.id')
                 ->select('cart.*', 'products.name as name', 'products.price as price', 'products.photo as photo')
                 ->where([
-                    ['cart.id_user', '=', $id],
-                    ['cart.status', '=', '1']
+                    ['cart.id_user', $id],
+                    ['cart.status', '1']
                 ])
                 ->orderBy('cart.id', 'asc')
                 ->get();
         
         if($data)
-            return $response->withJson($this->resultData($data, "Isi cart"), 200);
+            return $response->withJson($this->resultData($data, "Isi keranjang user : $id"), 200);
             
-        return $response->withJson($this->resultData(null, "Tidak ada cart"), 200);
+        return $response->withJson($this->resultData(null, "Eksekusi error"), 400);
     }
 
     public function search(Request $request, Response $response)
@@ -100,8 +100,8 @@ class CartController
         $much = $dataIn["much"];
         $total = $dataIn["total"];
         
-        if (empty($id_user) || empty($id_product) || empty($much)) {
-            return $response->withJson($this->resultData(null, "Form kosong"));
+        if (empty($id_user) || empty($id_product) || empty($much) || empty($total) ) {
+            return $response->withJson($this->resultData(null, "Form kosong"), 200);
         
         } else {
             $data = [
@@ -115,10 +115,10 @@ class CartController
             $result = $this->table->insert($data);
                         
             if($result) {
-                return $response->withJson($this->resultData(1, "Tambah cart sukses"));
+                return $response->withJson($this->resultData(1, "Tambah cart sukses"), 200);
             }
 
-            return $response->withJson($this->resultData(null, "Eksekusi error"));
+            return $response->withJson($this->resultData(null, "Eksekusi error"), 400);
         }
     }
 
@@ -129,7 +129,7 @@ class CartController
         $data = $this->table->where('id', $id)->delete();
         
         if($data)
-            return $response->withJson($this->resultData($data, "Berhasil menghapus produk"));
+            return $response->withJson($this->resultData($data, "Berhasil menghapus produk"), 200);
         
         return $response->withJson($this->resultData(null, "Produk tidak ditemukan"));
     }

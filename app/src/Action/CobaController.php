@@ -56,7 +56,7 @@ class CobaController
         $data = $this->table->find($id);
         
         if($data)
-            return $response->withJson($this->resultData($data, "Semua akun"), 200);
+            return $response->withJson($this->resultData($data, "Akun id $id"), 200);
         
         return $response->withJson($this->resultData(null, "Akun tidak ditemukan"), 200);
     }
@@ -112,7 +112,7 @@ class CobaController
         } else {
             $data = $this->table->where('email', $email)->exists();
             if($data){
-                return $response->withJson($this->resultData($data, "Email telah terdaftar"));
+                return $response->withJson($this->resultData(null, "Email telah terdaftar"));
             
             } else {
 

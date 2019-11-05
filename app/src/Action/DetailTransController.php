@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Builder;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class TransactionController
+class DetailTransController
 {
     private $view;
     private $logger;
@@ -45,7 +45,11 @@ class TransactionController
     public function __invoke(Request $request, Response $response, $args){}
 
     public function getAll(Request $request, Response $response){
-        $data = $this->table->get();
+        $data = $this->table
+                ->join('cart', 'detail_transactions.id_cart', '=', 'cart.id')
+                ->join('transactions', 'detail_transactions.id_trans', '=', 'transactions.id')
+                ->select('detail_transactions.*', 'transactions.id_user as id_user', 'cart.id_product as id_product', 'cart.much as much', 'cart.total as cost', 'transactions.total as total', 'transactions.date as date', 'transactions.esd as esd')
+                ->get();
 
         if($data)
             return $response->withJson($this->resultData($data, "Semua transaksi"), 200);
@@ -53,68 +57,41 @@ class TransactionController
         return $response->withJson($this->resultData($data, "Tidak ada transaksi"), 200);
     }
 
-    public function getById(Request $request, Response $response, $args)
+    public function getByIdTrans(Request $request, Response $response, $args)
     {
         $id = $args["id"];
         
-        $data = $this->table->find($id);
-        
-        if($data)
-            return $response->withJson($this->resultData($data, "Transaksi id"), 200);
-        
-        return $response->withJson($this->resultData(null, "Transaksi tidak ditemukan"), 200);
-    }
-
-    public function getByUser(Request $request, Response $response, $args)
-    {
-        $id_user = $args["id"];
-        
         $data = $this->table
-                ->where('id_user', $id_user)
-                ->get();
-        
-        if($data)
-            return $response->withJson($this->resultData($data, "Transaksi user id : $id_user"), 200);
-        
-        return $response->withJson($this->resultData(null, "Transaksi tidak ditemukan"), 200);
-    }
-
-    public function search(Request $request, Response $response)
-    {
-        $keyword = $request->getQueryParam("keyword");
-        
-        $data = $this->table
-                ->where('date', 'like', $keyword)
+                ->join('cart', 'detail_transactions.id_cart', '=', 'cart.id')
+                ->join('transactions', 'detail_transactions.id_trans', '=', 'transactions.id')
+                ->select('detail_transactions.*', 'transactions.id_user as id_user', 'cart.id_product as id_product', 'cart.much as much', 'cart.total as cost', 'transactions.total as total', 'transactions.date as date', 'transactions.esd as esd')
+                ->where('id_trans', '=', $id)
                 ->get();
 
         if($data)
-            return $response->withJson($this->resultData($data, "Daftar akun"), 200);
+            return $response->withJson($this->resultData($data, "Transaksi id : $id"), 200);
         
-        return $response->withJson($this->resultData($data, "Akun tidak ditemukan"), 200);
+        return $response->withJson($this->resultData(null, "Transaksi tidak ditemukan"), 200);
     }
 
     public function add(Request $request, Response $response){
 
         $dataIn = $request->getParsedBody();
-        $id_user = $dataIn["id_user"];
-        $total = $dataIn["total"];
-        $trans_hash = $dataIn["trans_hash"];
-        $esd = $dataIn["esd"];
-
-        if (empty($id_user) || empty($total) || empty($esd) || empty($trans_hash) ) {
+        $id_cart = $dataIn["id_cart"];
+        $id_trans = $dataIn["id_trans"];
+        
+        if (empty($id_cart) || empty($id_trans) ) {
             return $response->withJson($this->resultData(null, "Form kosong"));
         } else {
             $data = [
-                'id_user' => $id_user, 
-                'total' => $total,
-                'trans_hash' => $trans_hash,
-                'esd' => $esd
+                'email' => $email, 
+                'name' => $name,
             ];
 
             $result = $this->table->insert($data);
                         
             if($result) {
-                return $response->withJson($this->resultData(1, "Transaksi sukses"));
+                return $response->withJson($this->resultData($data, "Registrasi sukses"));
             }
 
             return $response->withJson($this->resultData(null, "Eksekusi error"));

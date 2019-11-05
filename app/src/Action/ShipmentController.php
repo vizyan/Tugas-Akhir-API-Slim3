@@ -8,11 +8,8 @@ use Illuminate\Database\Query\Builder;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class ProductsController
+class ShipmentController
 {
-    private $view;
-    private $logger;
-    protected $table;
 
     public function resultData($data, $message)
     {
@@ -32,15 +29,7 @@ class ProductsController
         return $result;
     }
 
-    public function __construct(
-        Twig $view,
-        LoggerInterface $logger,
-        Builder $table
-    ) {
-        $this->view = $view;
-        $this->logger = $logger;
-        $this->table = $table;
-    }
+    public function __construct() {}
 
     public function __invoke(Request $request, Response $response, $args){}
 
@@ -69,23 +58,7 @@ class ProductsController
                 ->first();
         
         if($data)
-            return $response->withJson($this->resultData($data, "Produk id : $id"), 200);
-        
-        return $response->withJson($this->resultData(null, "Produk tidak ditemukan"), 200);
-    }
-
-    public function getByCat(Request $request, Response $response, $args)
-    {
-        $id_cat = $args["id"];
-        
-        $data = $this->table
-                ->join('category', 'products.id_category', '=', 'category.id')
-                ->select('products.*', 'category.name as cat_name')
-                ->where('products.id_category',  $id_cat)
-                ->get();
-        
-        if($data)
-            return $response->withJson($this->resultData($data, "Produk berdasar kategori"), 200);
+            return $response->withJson($this->resultData($data, "Produk id"), 200);
         
         return $response->withJson($this->resultData(null, "Produk tidak ditemukan"), 200);
     }
@@ -114,6 +87,9 @@ class ProductsController
         $stock = $dataIn["password"];
         $stellarId = $dataIn["stellarId"];
         $secretSeed = $dataIn["secretSeed"];
+        // $token = $dataIn["token"];
+        // $address = $dataIn["address"];
+        // $phone = $dataIn["phone"];
         $passwordEncrypt = password_hash($password, PASSWORD_DEFAULT);
         
         if (empty($email) || empty($name) || empty($stellarId) || empty($secretSeed) || empty($password) ) {
