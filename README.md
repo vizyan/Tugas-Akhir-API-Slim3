@@ -9,7 +9,7 @@ This is a simple skeleton project for Slim 3 that includes Eloquent, Twig, Flash
 ### Run it:
 
 1. `$ cd my-app`
-2. `$ composer start
+2. `$ composer start`
 3. Browse to http://localhost:8888
 
 ## Key directories
